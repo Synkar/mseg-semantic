@@ -1,8 +1,8 @@
-![Python package](https://github.com/mseg-dataset/mseg-semantic/workflows/Python%20package/badge.svg?branch=master)Try out our models in [Google Colab on your own images](https://colab.research.google.com/drive/1ctyBEf74uA-7R8sidi026OvNb4WlKkG1?usp=sharing)!
+[![Build Status](https://travis-ci.com/mseg-dataset/mseg-semantic.svg?branch=master)](https://travis-ci.com/mseg-dataset/mseg-semantic) Try out our models in [Google Colab on your own images](https://colab.research.google.com/drive/1ctyBEf74uA-7R8sidi026OvNb4WlKkG1?usp=sharing)!
 
 This repo includes the **semantic segmentation pre-trained models, training and inference code** for the paper:
 
-**MSeg: A Composite Dataset for Multi-domain Semantic Segmentation** (CVPR 2020, Official Repo) [[CVPR PDF]](http://vladlen.info/papers/MSeg.pdf) [[Journal PDF]](https://arxiv.org/abs/2112.13762)
+**MSeg: A Composite Dataset for Multi-domain Semantic Segmentation** (CVPR 2020, Official Repo) [[PDF]](http://vladlen.info/papers/MSeg.pdf)
 <br>
 [John Lambert*](https://johnwlambert.github.io/),
 [Zhuang Liu*](https://liuzhuang13.github.io/),
@@ -11,9 +11,6 @@ This repo includes the **semantic segmentation pre-trained models, training and 
 [Vladlen Koltun](http://vladlen.info/)
 <br>
 Presented at [CVPR 2020](http://cvpr2020.thecvf.com/). Link to [MSeg Video (3min) ](https://youtu.be/PzBK6K5gyyo)
-
-**NEWS**:
-- [Dec. 2021]: An updated journal-length version of our work is now available on ArXiv [here](https://arxiv.org/abs/2112.13762).
 
 <p align="left">
   <img src="https://user-images.githubusercontent.com/62491525/83895683-094caa00-a721-11ea-8905-2183df60bc4f.gif" height="215">
@@ -39,22 +36,22 @@ This repo is the second of 4 repos that introduce our work. It provides utilitie
 - [` mseg-api`](https://github.com/mseg-dataset/mseg-api): utilities to download the MSeg dataset, prepare the data on disk in a unified taxonomy, on-the-fly mapping to a unified taxonomy during training.
 - [`mseg-mturk`](https://github.com/mseg-dataset/mseg-mturk): utilities to perform large-scale Mechanical Turk re-labeling
 
-One additional repo will be introduced in January 2021:
+One additional repo will be introduced in October 2020:
 - `mseg-panoptic`: provides Panoptic-FPN and Mask-RCNN training, based on Detectron2
 
 
 ### How fast can your models run?
-Our 480p MSeg model that accepts 473x473 px crops can run at **24.04 fps** on a Quadro P5000 GPU at single-scale inference.
-
-| Model         | Crop Size | Frame Rate (fps) <br> Quadro P5000 | Frame Rate (fps) <br> V100 |
-| :-----------: | :-------: | :---: | :---: | 
-| MSeg-3m-480p  | 473 x 473 | 24.04 | 8.26  |
-| MSeg-3m-720p  | 593 x 593 | 16.85 | 8.18  |
-| MSeg-3m-1080p | 713 x 713 | 12.37 | 7.85  |
+Our 480p MSeg model that accepts 473x473 px crops can run at **25.64 fps** on a Quadro P5000 GPU at single-scale inference.
 
 ### Dependencies
 
-Install the `mseg` module from [`mseg-api`](https://github.com/mseg-dataset/mseg-api).
+First, install the `mseg` module from [`mseg-api`](https://github.com/mseg-dataset/mseg-api)
+Second, install the `apex` module. NVIDIA's `apex` is a library with Pytorch extensions. If your Pytorch version doesn't match the `apex` version, this is likely fine, and you can comment out the bare metal version check in their `setup.py`. Make sure your `CUDA_HOME` is also set by running `echo $CUDA_HOME`, it should be something like `/usr/local/cuda-10.2`.
+```
+git clone https://github.com/NVIDIA/apex
+cd apex
+pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+```
 
 ### Install the MSeg-Semantic module:
 
@@ -153,10 +150,10 @@ Below we report the performance of individually-trained models that serve as bas
 
 You can obtain the following table by running 
 ```python
-python mseg_semantic/scripts/collect_results.py --regime zero_shot --scale ss --output_format markdown
-python mseg_semantic/scripts/collect_results.py --regime oracle --scale ss --output_format markdown
+python collect_results.py --regime zero_shot --scale ss --output_format markdown
+python collect_results.py --regime oracle --scale ss --output_format markdown
 ```
-after `./mseg_semantic/scripts/eval_models.sh`:
+after `./eval_models.sh`:
 
 Abbreviated Dataset Names: VOC = PASCAL VOC, PC = PASCAL Context, WD = WildDash, SN = ScanNet
 
@@ -223,7 +220,7 @@ We generally follow the recommendations of [Zhao et al.](https://github.com/hszh
 
 ## Training Instructions
 
-Please refer to [training.md](https://github.com/mseg-dataset/mseg-semantic/blob/master/training.md) for detailed instructions on how to train each of our models. As a frame of reference as to the amount of compute required, we use 8 Quadro RTX 6000 cards, each w/ 24 GB of RAM, for training. The 3 million crop models took ~2-3 weeks to train on such hardware, and the 1 million crop models took ~4-7 days.
+Please refer to [training.md](https://github.com/mseg-dataset/mseg-semantic/blob/master/training.md) for detailed instructions on how to train each of our models. As a frame of reference as to the amount of compute required, we use 8 Quadro RTX 6000 cards, each w/ 24 GB of RAM, for training.
 
 
 ## Running unit tests and integration tests
@@ -292,25 +289,3 @@ All should also pass.
 **Q**: Does the `auto_resume` param refer to the weight of breakpoint training, or the mseg-3m.pth provided by the author?
 
 **A**: We use the `auto_resume` config parameter to allow one to continue training if training is interrupted due to a scheduler compute time limit or hardware error. You could also use it to fine-tune a model.
-
-------------------------------------------------------
-
-**Q**: Could I know how to map the predicted label iD to the ID on cityscapes? Do you have any code/dictionary to achieve this?
-
-**A**: There are two Cityscape taxonomies (cityscapes-19 and cityscapes-34), although cityscapes-19 is more commonly used for evaluation. The classes in these taxonomies are enumerated in mseg-api [here](https://github.com/mseg-dataset/mseg-api/blob/master/mseg/dataset_lists/cityscapes-19/cityscapes-19_names.txt) and [here](https://github.com/mseg-dataset/mseg-api/blob/master/mseg/dataset_lists/cityscapes-34/cityscapes-34_names.txt)
-
-We have released both unified models (trained on many datasets, list available [here](https://github.com/mseg-dataset/mseg-semantic#mseg-pre-trained-models])) and models trained on single datasets, listed [here](https://github.com/mseg-dataset/mseg-semantic#other-baseline-models-from-our-paper).
-
-If you use a unified model for testing, our code maps class scores from the unified taxonomy to cityscapes classes. We discuss this in a section of our [paper](http://vladlen.info/papers/MSeg.pdf) (page 6, top-right under **Using the MSeg taxonomy on a held-out dataset**). The mapping is available in [MSeg_master.tsv](https://github.com/mseg-dataset/mseg-api/blob/master/mseg/class_remapping_files/MSeg_master.tsv), if you compare the `universal` and `wilddash-19` columns (wilddash-19 shares the same classes with cityscapes-19)
-
-If instead you used a model specifically trained on cityscapes, e.g. `cityscapes-19-1m`, which we call an "oracle model" since it is trained and tested on different splits of the same dataset, then the output classes are already immediately in the desired taxonomy.
-
-Our inference code that dumps model results in any particular taxonomy is available here:
-https://github.com/mseg-dataset/mseg-semantic/blob/master/mseg_semantic/scripts/eval_models.sh
-
-
-
-
-
-
-

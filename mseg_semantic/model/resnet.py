@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 
-import math
-
 import torch
 import torch.nn as nn
+import math
 import torch.utils.model_zoo as model_zoo
-
+import pdb
 BatchNorm = nn.BatchNorm2d
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
@@ -170,7 +169,7 @@ class ResNet(nn.Module):
         return x
 
 
-def resnet18(pretrained: bool = False, **kwargs):
+def resnet18(pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
 
     Args:
@@ -182,7 +181,7 @@ def resnet18(pretrained: bool = False, **kwargs):
     return model
 
 
-def resnet34(pretrained: bool = False, **kwargs):
+def resnet34(pretrained=False, **kwargs):
     """Constructs a ResNet-34 model.
 
     Args:
@@ -194,7 +193,7 @@ def resnet34(pretrained: bool = False, **kwargs):
     return model
 
 
-def resnet50(pretrained: bool = False, **kwargs):
+def resnet50(pretrained=False, **kwargs):
     """Constructs a ResNet-50 model.
 
     Args:
